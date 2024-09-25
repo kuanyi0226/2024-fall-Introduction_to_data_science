@@ -27,12 +27,18 @@ def parse_term(term):
     #ex. X^2, +Y^3, -X, ...
     if "*" not in term:
         if term[0] == '-':
-            coefficient = -1
-            variables = term[1:] if len(term) > 1 else ''
+            if term[1:].isdigit(): #pure number without variable
+                return int(term), {} 
+            else:
+                coefficient = -1
+                variables = term[1:] if len(term) > 1 else ''
         elif term[0] == '+':
-            coefficient = 1
-            variables = term[1:] if len(term) > 1 else ''
-        else:
+            if term[1:].isdigit():
+                return int(term), {} 
+            else:
+                coefficient = 1
+                variables = term[1:] if len(term) > 1 else '' 
+        else: # a term starts with a letter
             coefficient = 1 if term[0].isalpha() else int(term)
             variables = term if term[0].isalpha() else ''
     #ex. 3*X^2 (split to)=> 3, X^2
@@ -50,8 +56,12 @@ def parse_term(term):
             current_var = char
             var_dict[current_var] = 1
         elif char == "^":
-            var_dict[current_var] = int(variables[i+1]) #the number after "^"
-    
+            exp_end_index = i + 1 #start from the begin
+            #find the end-index for the digits(exp)
+            while (exp_end_index < len(variables)) and (variables[exp_end_index].isdigit()):
+                exp_end_index += 1
+            var_dict[current_var] = int(variables[i+1: exp_end_index]) if (exp_end_index > i + 1) else 1 #the numbers after "^"
+    #print(coefficient)
     return coefficient, var_dict
 
 # multiply two terms
@@ -181,9 +191,44 @@ def multiply_polynomials(polynomials):
     
     return result
 
+#convert the bonus input to the standard one
+def bonus_convert_to_standard(input_str):
+    result = ""
+    input_length = len(input_str)
+    can_add_coef = True # avoid: X2Y4 -> X^2*Y^4
+
+    #iterate each char in the input
+    for i in range(input_length):
+        current_char = input_str[i]
+        if current_char.isalpha():
+            #check *
+            if (i > 0) and (input_str[i-1].isdigit()) and can_add_coef:
+                result = result + "*"
+
+            result = result + current_char
+            can_add_coef = False
+
+            #check "^"
+            if (i < input_length - 1) and (input_str[i+1].isdigit()):
+                result = result + "^"
+        else:
+            result = result + current_char
+            if current_char == '+' or current_char == '-':
+                # the next char might be digits -> coef
+                can_add_coef = True
+    print(result)
+    return result
+
+def bonus_ouput(str):
+    result = str.replace("^","")
+    result = result.replace("*","")
+    return result
+
 # Main function to do p1
 def polynomial_multiplication():
     input_str = input("Input the polynomials: ")
+    input_str = input_str.replace(" ", "")
+    input_str = bonus_convert_to_standard(input_str)
     
     # Remove the outer parentheses and split by the ")*("
     # Removes the outer parentheses(the first and last char) from the input.
@@ -194,6 +239,10 @@ def polynomial_multiplication():
     result = multiply_polynomials(polynomials)
     
     print(f"Output Result: {result}")
+    print(f"Output Result: {bonus_ouput(result)} (bonus)")
 
 # call the function to do p1
 polynomial_multiplication()
+
+# bugs inputs
+# (X+1)(Y+5)
