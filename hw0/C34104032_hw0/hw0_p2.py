@@ -1,4 +1,4 @@
-# read the input file
+# read the input file without leading
 def read_csv_file(file_path):
     with open(file_path, 'r', encoding='utf-8') as file:
         lines = file.readlines()
@@ -11,31 +11,67 @@ def top_3_movies_2016(data):
     movies_2016 = [row for row in data if row[5] == '2016']  
     #sort movies_2016 by rating
     sorted_movies = sorted(movies_2016, key=lambda x: float(x[7]), reverse=True)  # 7: rating
-    return [movie[1] for movie in sorted_movies[:3]]  # 1: title
+    # Find the top 3 distinct rating values
+    top_ratings = sorted(set(float(movie[7]) for movie in sorted_movies), reverse=True)[:3]
+
+    result = []
+    
+    for i, rating in enumerate(top_ratings, start=1):
+        # Find all movies with the current rating
+        movies_with_rating = [movie[1] for movie in sorted_movies if float(movie[7]) == rating]
+        
+        # Add to the result
+        result.append((i, rating, movies_with_rating))
+    
+    #print the result
+    print("Rank    Rating     Movies")
+    print("--------------------------------------")
+    for rank, rating, movies in result:
+        print(f"{rank:<7} {rating:<10} {', '.join(movies)}")
+
+    return
 
 # Q(2)The actor generating the highest average revenue? 
 def actor_highest_avg_revenue(data):
     #using a dict to record 
+    '''
+    The way I define average revenue:
+    Sum(the revenues of the movies that the actor worked with) / (number of the movies that the actor worked with)
+    note that if the revenue is blank, we should not count the movie in
+    '''
     actor_revenue = {}
     
+    blank_counter = 0 #used for testing
     for row in data:
-        revenue = float(row[9]) if row[9] else 0  # Assuming column 9 is 'Revenue (Millions)'
-        actors = row[4].split('|')  # 4: actor
-        actors = [str.strip() for str in actors]
-        
-        for actor in actors:
-            if actor not in actor_revenue:
-                actor_revenue[actor] = {'total_revenue': 0, 'movie_count': 0}
-            actor_revenue[actor]['total_revenue'] += revenue
-            actor_revenue[actor]['movie_count'] += 1
-    
+        #if blank, set -1
+        revenue = float(row[9]) if row[9] else -1  #9: revenue
+        #skip the movie if its revenue is blank
+        if revenue >= 0:
+            actors = row[4].split('|')  # 4: actor
+            actors = [str.strip() for str in actors]
+            
+            #add the revenue to each actor
+            for actor in actors:
+                if actor not in actor_revenue:
+                    actor_revenue[actor] = {'total_revenue': 0, 'movie_count': 0}
+                actor_revenue[actor]['total_revenue'] += revenue
+                actor_revenue[actor]['movie_count'] += 1
+        else:
+            blank_counter += 1
+    #print(f"blank: {blank_counter}")    
     # Calculate average revenue per actor
     actor_avg_revenue = {actor: info['total_revenue'] / info['movie_count'] for actor, info in actor_revenue.items()}
+    # Find the highest average revenue
+    highest_avg_revenue = max(actor_avg_revenue.values())
     #print(sorted(actor_avg_revenue,key=actor_avg_revenue.get))
-    # Find the actor with the highest average revenue
-    highest_avg_actor = max(actor_avg_revenue, key=actor_avg_revenue.get)
+    # Find the actor(s) with the highest average revenue
+    highest_avg_actors = [actor for actor, avg_revenue in actor_avg_revenue.items() if avg_revenue == highest_avg_revenue]
     
-    return highest_avg_actor
+    #print the result
+    for actor in highest_avg_actors:
+        print(f"{actor}")
+    print(f"(with the highest average revenue: {highest_avg_revenue} Millions)")
+    return 
 
 # Q(3)The average rating of Emma Watson’s movies?
 def avg_rating_emma_watson(data):
@@ -48,17 +84,21 @@ def avg_rating_emma_watson(data):
         #print(actors)
         if 'Emma Watson' in actors:
             #print(actors)
-            total_rating += float(row[7])  # Assuming column 8 is 'Rating'
+            total_rating += float(row[7])  # 7: rating
             count += 1
     #print(total_rating)
     #print(count)
-    return total_rating / count if count > 0 else 0
+
+    #print the result
+    print(total_rating / count if count > 0 else 0)
+    return 
+
 # Q(4)Top-3 directors who collaborate with the most actors? 
 def top_3_directors_most_actors(data):
     director_actor_count = {}
     
     for row in data:
-        director = row[3]  # Assuming column 3 is 'Director'
+        director = row[3]  # 3: director
         actors = row[4].split('|')  # 4: actor
         actors = [str.strip() for str in actors]
         
@@ -69,8 +109,23 @@ def top_3_directors_most_actors(data):
     
     # Sort by the number of unique actors per director
     sorted_directors = sorted(director_actor_count.items(), key=lambda x: len(x[1]), reverse=True)
+    # Find the top 3 distinct values for the number of actors
+    top_actor_counts = sorted(set(len(actors) for director, actors in sorted_directors), reverse=True)[:3]
     
-    return [director[0] for director in sorted_directors[:3]]
+    #print(sorted_directors)
+    result = []
+    for i, count in enumerate(top_actor_counts, start=1):
+        # Find directors who have this actor_count
+        curr_directors = [director for director, actors in sorted_directors if len(actors) == count]
+        result.append((i, count, curr_directors))
+
+    #print the result
+    print("Rank    # of Actors     Directors")
+    print("--------------------------------------")
+    for rank, count, directors in result:
+        print(f"{rank:<7} {count:<15} {', '.join(directors)}")
+    return 
+
 # Q(5)Top-2 actors playing in the most genres of movies?
 def top_2_actors_most_genres(data):
     actor_genres = {}
@@ -79,7 +134,7 @@ def top_2_actors_most_genres(data):
         actors = row[4].split('|')  # 4: actor
         actors = [str.strip() for str in actors]
         genres = row[2].split('|')  # 2: genre
-        genres = [str.strip() for str in actors]
+        genres = [str.strip() for str in genres]
         
         for actor in actors:
             if actor not in actor_genres:
@@ -88,9 +143,23 @@ def top_2_actors_most_genres(data):
     
     # Sort actors by the number of unique genres
     sorted_actors = sorted(actor_genres.items(), key=lambda x: len(x[1]), reverse=True)
+    # Find the top 2 distinct values for the number of genres
+    top_genre_counts = sorted(set(len(genres) for actor, genres in sorted_actors), reverse=True)[:2]
     
-    return [actor[0] for actor in sorted_actors[:2]]
-# Q(6)Top-3 actors whose movies lead to the largest maximum gap of years?
+    #print(sorted_actors)
+    result = []
+    for i, count in enumerate(top_genre_counts, start=1):
+        # Find actors who have this genre count
+        actors_with_count = [actor for actor, genres in sorted_actors if len(genres) == count]
+        result.append((i, count, actors_with_count))
+    #print result
+    print("Rank    # of Genres     Actors")
+    print("--------------------------------------")
+    for rank, count, actors in result:
+        print(f"{rank:<7} {count:<15} {', '.join(actors)}")
+    return
+
+# Q(6)actors whose movies lead to the largest maximum gap of years?
 def max_gap_years(data):
     actor_years = {}
     
@@ -110,10 +179,17 @@ def max_gap_years(data):
     for actor, years in actor_years.items():
         actor_max_gap[actor] = max(years) - min(years)
     
-    # Sort by the maximum gap of years
-    sorted_actors = sorted(actor_max_gap.items(), key=lambda x: x[1], reverse=True)
+    # Find all actors with the largest gap
+    largest_maximum_gap = max(actor_max_gap.values())
+    actors_with_max_gap = [actor for actor, gap in actor_max_gap.items() if gap == largest_maximum_gap]
+
+    #print the result
+    for actor in actors_with_max_gap:
+        print(actor)
     
-    return [actor[0] for actor in sorted_actors[:3]]
+    print(F"({len(actors_with_max_gap)} actors with the largest maximum gap of years: {largest_maximum_gap})")
+    
+    return
 # Q(7)Find all actors who collaborate with Johnny Depp in direct and indirect ways
 def johnny_depp_collaborators(data):
     actor_collabs = {}
@@ -151,22 +227,22 @@ data = read_csv_file(file_path)
 
 #1
 print('Q1:')
-print(top_3_movies_2016(data))
+top_3_movies_2016(data)
 #2
 print('Q2:')
-print(actor_highest_avg_revenue(data))
+actor_highest_avg_revenue(data)
 #3
 print('Q3:')
-print(avg_rating_emma_watson(data))
+avg_rating_emma_watson(data)
 #4
 print('Q4:')
-print(top_3_directors_most_actors(data))
+top_3_directors_most_actors(data)
 #5
 print('Q5:')
-print(top_2_actors_most_genres(data))
+top_2_actors_most_genres(data)
 #6
 print('Q6:')
-print(max_gap_years(data))
+max_gap_years(data)
 #7
 print('Q7:')
-print(johnny_depp_collaborators(data))
+#johnny_depp_collaborators(data)

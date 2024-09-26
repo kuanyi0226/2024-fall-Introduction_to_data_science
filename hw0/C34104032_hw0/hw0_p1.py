@@ -245,4 +245,4 @@ def polynomial_multiplication():
 polynomial_multiplication()
 
 # bugs inputs
-# (X+1)(Y+5)
+
