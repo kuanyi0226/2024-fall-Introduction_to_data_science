@@ -213,12 +213,13 @@ def bonus_convert_to_standard(input_str):
                 result = result + "^"
         else:
             result = result + current_char
-            if current_char == '+' or current_char == '-':
+            if current_char == '+' or current_char == '-' or current_char == '(':
                 # the next char might be digits -> coef
                 can_add_coef = True
-    print(result)
+    #print(result)
     return result
 
+#convert a standard output to a bonus one
 def bonus_ouput(str):
     result = str.replace("^","")
     result = result.replace("*","")
@@ -238,11 +239,63 @@ def polynomial_multiplication():
     # Multiply all the polynomials
     result = multiply_polynomials(polynomials)
     
+    #print the result
     print(f"Output Result: {result}")
+    #print the bonus result
     print(f"Output Result: {bonus_ouput(result)} (bonus)")
 
 # call the function to do p1
 polynomial_multiplication()
 
-# bugs inputs
+#inputs
+'''
+(X+2*Y)(2*X^2-Y^2+Z)
+(X+2Y)(2X2-Y2+Z)
+Output Result: 2*X^3-XY^2+XZ+4*X^2Y-2*Y^3+2*YZ
+Output Result: 2X3-XY2+XZ+4X2Y-2Y3+2YZ (bonus)
+
+(2*X+3*Y+4*Z)(XY^2+X^2Y+Z^2)
+(2X+3Y+4Z)(XY2+X2Y+Z2)
+Output Result: 5*X^2Y^2+2*X^3Y+2*XZ^2+3*XY^3+3*YZ^2+4*XY^2Z+4*X^2YZ+4*Z^3
+Output Result: 5X2Y2+2X3Y+2XZ2+3XY3+3YZ2+4XY2Z+4X2YZ+4Z3 (bonus)
+
+(A+2*B^2)(B+3*C^3)(2*A+B+C)
+(A+2B2)(B+3C3)(2A+B+C)
+Output Result: 2*A^2B+AB^2+ABC+6*A^2C^3+3*ABC^3+3*AC^4+4*AB^3+2*B^4+2*B^3C+12*AB^2C^3+6*B^3C^3+6*B^2C^4
+Output Result: 2A2B+AB2+ABC+6A2C3+3ABC3+3AC4+4AB3+2B4+2B3C+12AB2C3+6B3C3+6B2C4 (bonus)
+
+(X^2+Y)(X+Y)
+(X2+Y)(X+Y)
+Output Result: X^3+X^2Y+XY+Y^2
+Output Result: X3+X2Y+XY+Y2 (bonus)
+
+(X+1)(X+5)
+Output Result: X^2+6*X+5
+Output Result: X2+6X+5 (bonus)
+
+(X^2+1)(X+Y)
+(X2+1)(X+Y)
+Output Result: X^3+X^2Y+X+Y
+Output Result: X3+X2Y+X+Y (bonus)
+
+(X+2)(X^2+3*X+1)
+(X+2)(X2+3X+1)
+Output Result: X^3+5*X^2+7*X+2
+Output Result: X3+5X2+7X+2 (bonus)
+
+(A^3+B^2)(A^2+C)
+(A3+B2)(A2+C)
+Output Result: A^5+A^3C+A^2B^2+B^2C
+Output Result: A5+A3C+A2B2+B2C (bonus)
+
+(55*Z-31*X^12)(2*Y^2+70)
+(55Z-31X12)(2Y2+70)
+Output Result: 110*Y^2Z+3850*Z-62*X^12Y^2-2170*X^12
+Output Result: 110Y2Z+3850Z-62X12Y2-2170X12 (bonus)
+
+(X)(X-Y^5)(8*X+Z)(9*Z^2)
+(X)(X-Y5)(8X+Z)(9Z2)
+Output Result: 72*X^3Z^2+9*X^2Z^3-72*X^2Y^5Z^2-9*XY^5Z^3
+Output Result: 72X3Z2+9X2Z3-72X2Y5Z2-9XY5Z3 (bonus)
+'''
 

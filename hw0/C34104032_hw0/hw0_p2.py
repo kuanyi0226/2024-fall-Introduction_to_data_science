@@ -61,6 +61,7 @@ def actor_highest_avg_revenue(data):
     #print(f"blank: {blank_counter}")    
     # Calculate average revenue per actor
     actor_avg_revenue = {actor: info['total_revenue'] / info['movie_count'] for actor, info in actor_revenue.items()}
+    #print(len(actor_avg_revenue))
     # Find the highest average revenue
     highest_avg_revenue = max(actor_avg_revenue.values())
     #print(sorted(actor_avg_revenue,key=actor_avg_revenue.get))
@@ -194,7 +195,7 @@ def max_gap_years(data):
 def johnny_depp_collaborators(data):
     actor_collabs = {}
     
-    # Build the actor collaboration graph
+    # find each actor's direct collaboration
     for row in data:
         actors = row[4].split('|')  # 4: actor
         actors = [str.strip() for str in actors]
@@ -204,20 +205,24 @@ def johnny_depp_collaborators(data):
                 actor_collabs[actor] = set()
             actor_collabs[actor].update(actors)
     
-    # Perform a breadth-first search to find all collaborators (direct and indirect)
+    # find all collaborators (direct and indirect) by a queue(list)
     collaborators = set()
-    queue = ['Johnny Depp']
+    queue = ['Johnny Depp'] #target
     
     while queue:
         current_actor = queue.pop(0)
+        #avoid looping
         if current_actor in collaborators:
             continue
         collaborators.add(current_actor)
-        queue.extend(actor_collabs.get(current_actor, []))
-    
+        #add multiple elements after the queue(current_actor's direct collaborators)
+        queue.extend(actor_collabs.get(current_actor))\
+        
+    #remove the target himself
     collaborators.remove('Johnny Depp')
-    print(len(collaborators))
-    return collaborators
+    print(collaborators)
+    print(f"(with {len(collaborators)} collaborators in total)")
+    return
 
 # Load the CSV file
 folder = 'C34104032_hw0/'
@@ -245,4 +250,4 @@ print('Q6:')
 max_gap_years(data)
 #7
 print('Q7:')
-#johnny_depp_collaborators(data)
+johnny_depp_collaborators(data)
