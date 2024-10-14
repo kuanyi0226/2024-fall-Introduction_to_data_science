@@ -191,6 +191,7 @@ def max_gap_years(data):
     print(F"({len(actors_with_max_gap)} actors with the largest maximum gap of years: {largest_maximum_gap})")
     
     return
+
 # Q(7)Find all actors who collaborate with Johnny Depp in direct and indirect ways
 def johnny_depp_collaborators(data):
     actor_collabs = {}
@@ -225,9 +226,10 @@ def johnny_depp_collaborators(data):
     return
 
 # Load the CSV file
-folder = 'C34104032_hw0/'
+folder = 'hw0/C34104032_hw0/'
 file_path = 'IMDB-Movie-Data.csv'
 data = read_csv_file(file_path)
+#data = read_csv_file(folder + file_path)
 #print(data)
 
 #1
